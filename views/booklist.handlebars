@@ -1,0 +1,23 @@
+
+
+<div id="container" style="display: flex; flex-wrap: wrap;   align-items: flex-start;">
+  {{#each books}}
+  <a href="../bookpreview?{{bookid}}">
+    <div class="book">
+      <img src="{{cover}}" alt="{{title}}" class="cover">
+      <h2> {{title}}</h2>
+      <p>{{author}}</p>
+    </div>
+    </a>
+  {{/each}}
+</div>
+
+<script>
+const bookList = document.getElementById('container');
+bookList.addEventListener('click', function(event) {
+  if (event.target.classList.contains('book')) {
+    const url = event.target.getAttribute('data-url');
+    window.location.href = url;
+  }
+});
+</script>

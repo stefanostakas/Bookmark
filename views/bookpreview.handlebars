@@ -1,0 +1,335 @@
+<!-- HTML -->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+<!-- Main title - book title -->
+
+
+
+<!-- Book info box -->
+<div class="book-container">
+  <div class="thumbnail">
+    <img id="cover" alt="Book Thumbnail">
+        <div class="book-details">
+      <p id="pages"></p>
+      <p id="year"></p>
+      <br>
+    </div>
+  </div>
+  <div class="book-info">
+    <div class="book-title" id="title">Book Title</div>
+    <div class="book-author" id ="author">Author Name</div>
+    <div class="book-description" id="descr">Book Description</div>
+    <div class="addlibrary-button">
+  <i class="fa fa-plus"></i>
+  <span>ADD TO LIBRARY</span>
+</div>
+  </div>
+</div>
+
+<br>
+
+
+<script>
+
+var title;
+var author;
+var descr;
+var cover;
+var pages;
+var year;
+
+// Get Current Book Info
+var bookid = window.location.href.split('?')[1]; // bookid of the current book
+url = "https://www.googleapis.com/books/v1/volumes?q="+bookid;
+
+// Get book info
+  fetch(url)
+       .then(function (res) {
+       return res.json();
+       })
+       .then(function (result) {
+        items = result.items;
+        
+        // pass values
+        getValues();
+
+  const res = checkIfBookExists();
+checkIfBookExists().then(res => {
+  if (res) {
+    changeStatus();
+  }
+});
+        
+
+ function getValues(){
+
+title = items[0].volumeInfo.title;
+     author = items[0].volumeInfo.authors;
+     descr = items[0].volumeInfo.description;
+     cover = items[0].volumeInfo.imageLinks.thumbnail;
+     pages = items[0].volumeInfo.pageCount;
+     year = items[0].volumeInfo.publishedDate;
+
+
+   
+   document.getElementById("descr").innerHTML =  descr;
+   document.getElementById("title").innerHTML = title;
+   document.getElementById("author").innerHTML = author;
+   document.getElementById("cover").src = cover;
+   document.getElementById("pages").innerHTML = "Pages: " + pages
+   document.getElementById("year").innerHTML = "Published year: " + year
+ }
+
+              }),
+          function (error) {
+            console.log(error);
+          };
+
+const libraryButton = document.querySelector('.addlibrary-button');
+
+libraryButton.addEventListener('mouseenter', function() {
+  libraryButton.style.backgroundColor = '#444';
+  libraryButton.style.color = '#fff';
+});
+libraryButton.addEventListener('mouseleave', function() {
+  libraryButton.style.backgroundColor = '#333';
+  libraryButton.style.color = '#fff';
+});
+
+// Check if the book is already in the library 
+function checkIfBookExists() {
+  return fetch('../api/books')
+    .then(response => response.json())
+    .then(items => {
+      for (var j = 0; j < items.length; j++) {
+        if (items[j].bookid === this.bookid) {
+          return true;
+        }
+      }
+      return false;
+    })
+    .catch(error => {
+      console.error('Error fetching JSON data:', error);
+      return false;
+    });
+}
+
+
+
+
+// Add book on library
+libraryButton.addEventListener('click', function() {
+checkIfBookExists().then(result => {
+  if (result) {
+    changeStatus();
+    deleteBook();
+  }else{
+    changeStatus();
+    addBook();
+  }
+});
+});
+
+// Delete book
+function deleteBook() {
+  return fetch(`/api/books/${this.bookid}`, {
+    method: 'DELETE'
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Failed to delete book with bookid ${this.bookid}.`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log(data.message);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+}
+
+  
+  // Trims a string with more than 30 characters
+  function truncateString(str) {
+  if (str.length > 30) {
+    return str.substr(0, 30) + '...';
+  }
+  return str;
+}
+
+
+
+function addBook(){
+  try {
+    fetch('../../api/books', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: truncateString(this.title),
+        author: truncateString(this.author),
+        descr: this.descr,
+        pages: this.pages,
+        bookid: this.bookid,
+        cover: this.cover
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  } catch(err) {
+    console.error(err);
+  }
+}
+
+function changeStatus(){
+
+const icon = libraryButton.querySelector('i');
+const text = libraryButton.querySelector('span');
+
+  if (icon.classList.contains('fa-plus')) {
+    icon.classList.remove('fa-plus');
+    icon.classList.add('fa-check');
+    text.innerText = 'SAVED TO LIBRARY';
+    icon.style.color = "green";
+    }else {
+    icon.classList.remove('fa-check');
+    icon.classList.add('fa-plus');
+    text.innerText = 'ADD TO LIBRARY';
+     icon.style.color = "white";
+  }
+
+}
+
+
+
+ </script>
+
+ <style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background: #0f0c29;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #24243e, #302b63, #0f0c29); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    
+    color: white;
+    font-family: "Poppins", sans-serif;
+    min-height: 100vh;
+  }
+
+  .form-group{
+    padding-top:15px;
+  }
+  
+  h1 {
+    font-size: 48rpx;
+    padding-top: 75px;
+    padding-bottom: 35px;
+  }
+
+  .btn{
+  box-shadow: 0px 10px 14px -7px #c25a0b;
+	background:linear-gradient(to bottom, #e98940 5%, #c25a0b 100%);
+	background-color:#e98940;
+	border-radius:8px;
+    border:none;
+	cursor:pointer;
+	color:#ffffff;
+  font-family: "Poppins", sans-serif;
+	font-size:20px;
+	font-weight:bold;
+	padding:13px 32px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #c25a0b;
+  }
+
+
+  .center {
+  background: #0101014f;
+  border-radius: 15px;
+    clear: both;
+    font-size: 1.4em;
+    padding: 10px 0;
+    padding-left:25px;
+      float: left;
+}
+
+.book-container {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .thumbnail {
+    width: 30%;
+    text-align: center;
+  }
+
+  .thumbnail img {
+    width: auto;
+    height: auto;
+    border-radius: 10px;
+    padding-bottom: 10px;
+  }
+
+  .book-info {
+    width: 70%;
+    padding: 20px;
+    text-align: left;
+  }
+
+  .book-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .book-author {
+    font-size: 18px;
+    color: gray;
+    margin-bottom: 20px;
+  }
+
+  .book-description {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .book-details {
+    font-size: 14px;
+    color: gray;
+  }
+
+  .addlibrary-button {
+  display: inline-flex;
+  align-items: center;
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.addlibrary-button i {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.addlibrary-button:hover {
+  background-color: #444;
+  color: #fff;
+}
+
+
+ </style>
+
+
+
