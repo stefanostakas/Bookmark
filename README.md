@@ -1,6 +1,6 @@
 # Bookmark: Basic Google Books API Implementation.
 
-A web application built using HTML, JavaScript, CSS, Bootstrap, Node.js, Express framework and Handlebars that offers a user-friendly interface to the Google Books API, streamlining the search and display process for books. With a simple and intuitive search bar, users can quickly find and view detailed information about their desired books. The app also includes a feature for saving favorite books to a personal library, complete with HTTP requests (PUT, POST, DELETE) specifically implemented for the book objects in JSON format.
+A web application that offers a user-friendly interface to the Google Books API, streamlining the search and display process for books. With a simple and intuitive search bar, users can quickly find and view detailed information about their desired books. The app also includes a feature for saving favorite books to a personal library, complete with HTTP requests (PUT, POST, DELETE) specifically implemented for the book objects in JSON format.
 ## Key Features
 - Search books using keywords, author, title, or any relevant information
 - Display detailed information about each book including title, author, description, and more
