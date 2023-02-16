@@ -1,4 +1,4 @@
-# Bookmark: A Google Book's RESTful API.
+# Bookmark: A Google Books RESTful API.
 
 A web application that offers a user-friendly interface to the Google Books API, streamlining the search and display process for books. With a simple and intuitive search bar, users can quickly find and view detailed information about their desired books. The app also includes a feature for saving favorite books to a personal library, complete with HTTP requests (PUT, POST, DELETE) specifically implemented for the book objects in JSON format.
 ## Key Features
